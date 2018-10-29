@@ -37,7 +37,7 @@ import java.io.*;
  * into a busy loop (checking once a second) to see when the state gets the transaction. When it does, it
  * prints it, too.
  */
-public class ExternalOracleMain implements SwirldMain {
+public class DEXMain implements SwirldMain {
 	/** the platform running this app */
 	public Platform platform;
 	/** ID number for this member */
@@ -114,7 +114,7 @@ public class ExternalOracleMain implements SwirldMain {
 			int rounds = 0;
 			String stateString = "";
 			while (true) {
-				ExternalOracleState state = (ExternalOracleState) platform
+				DEXState state = (DEXState) platform
 						.getState();
 				String received = state.getReceived();				
 				rounds++;					
@@ -185,7 +185,7 @@ public class ExternalOracleMain implements SwirldMain {
 
 	@Override
 	public SwirldState newState() {
-		return new ExternalOracleState();
+		return new DEXState();
 	}
 	
 	public String ReadExternalData() {

@@ -34,7 +34,7 @@ import com.swirlds.platform.Utilities;
  * a string, and the state is just a list of the strings in all the transactions handled so far, in the
  * order that they were handled.
  */
-public class ExternalOracleState implements SwirldState {
+public class DEXState implements SwirldState {
 
 	// SHARED STATE
 	//shared state is a map of identifier -> integers (random number) 
@@ -84,7 +84,7 @@ public class ExternalOracleState implements SwirldState {
 
 	@Override
 	public synchronized FastCopyable copy() {
-		ExternalOracleState copy = new ExternalOracleState();
+		DEXState copy = new DEXState();
 		copy.copyFrom(this);
 		return copy;
 	}
@@ -139,8 +139,8 @@ public class ExternalOracleState implements SwirldState {
 
 	@Override
 	public synchronized void copyFrom(SwirldState old) {
-		randoms = new HashMap<String, String>(((ExternalOracleState)old).randoms);
-		addressBook = ((ExternalOracleState) old).addressBook.copy();
+		randoms = new HashMap<String, String>(((DEXState)old).randoms);
+		addressBook = ((DEXState) old).addressBook.copy();
 	}
 
 	@Override
