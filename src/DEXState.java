@@ -57,9 +57,9 @@ public class DEXState implements SwirldState {
 		{
 			String name = entry.getKey();
 			Order order = entry.getValue();
-			Boolean buyOrSell = order.buyOrSell;
+			Integer buyOrSell = order.buyOrSell;
 			Integer amount = order.amount;
-			Double price = order.price;
+			Long price = order.price;
 			result += name + " " + buyOrSell.toString() + 
 					" " + amount.toString() + " " + price.toString();
 		}
@@ -74,11 +74,11 @@ public class DEXState implements SwirldState {
 		{
 			String name = entry.getKey();
 			Order order = entry.getValue();
-			boolean buyOrSell = order.buyOrSell;
-			int amount = order.amount;
-			double price = order.price;
-			result += name + " " + new Boolean(buyOrSell).toString() + 
-					" " + new Integer(amount).toString() + " " + new Double(price).toString();
+			Integer buyOrSell = order.buyOrSell;
+			Integer amount = order.amount;
+			Long price = order.price;
+			result += name + " " + buyOrSell.toString() + 
+					" " + amount.toString() + " " + price.toString();
 		}
 		return result;
 	}
@@ -101,22 +101,36 @@ public class DEXState implements SwirldState {
 	public synchronized void copyTo(FCDataOutputStream outStream) {
 		try {
 			List<String> nameArray = new ArrayList<String>();		
-			List<Boolean> buyOrSellArray = new ArrayList<Boolean>();
+			List<Integer> buyOrSellArray = new ArrayList<Integer>();
+			List<Integer> amountArray = new ArrayList<Integer>();
+			List<Long> priceArray = new ArrayList<Long>();
 			
-			
-			for (Map.Entry<String, String> entry : randoms.entrySet())
+			for (Map.Entry<String, Order> entry : orderBook.entrySet())
 			{
-				String key = entry.getKey();
-				String value = entry.getValue();
-				stringArray1.add(key);
-				stringArray2.add(value);
+				String name = entry.getKey();
+				Order order = entry.getValue();
+				Integer buyOrSell = order.buyOrSell;
+				Integer amount = order.amount;
+				Long price = order.price;
+				nameArray.add(name);
+				buyOrSellArray.add(buyOrSell);
+				amountArray.add(amount);
+				priceArray.add(price);
 			}
 
 			Utilities.writeStringArray(outStream, 
-					stringArray1.toArray(new String[0]));
+					nameArray.toArray(new String[0]));
+			
+			int[] buyOrSellA = buyOrSellArray.stream().mapToInt(i -> i).toArray();
+			
+			Utilities.writeIntArray(outStream,
+					buyOrSellA);
 
-			Utilities.writeStringArray(outStream, 
-					stringArray2.toArray(new String[0]));
+			int[] amountA = amountArray.stream().mapToInt(i -> i).toArray();
+			
+			Utilities.writeIntArray(outStream,
+					amountA);
+
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -126,20 +140,32 @@ public class DEXState implements SwirldState {
 	@Override
 	public synchronized void copyFrom(FCDataInputStream inStream) {
 		try {
-			List<String> stringArray1 = new ArrayList<String>(
-					Arrays.asList(Utilities.readStringArray(inStream)));
-
-			List<String> stringArray2 = new ArrayList<String>(
+			List<String> nameArray = new ArrayList<String>(
 					Arrays.asList(Utilities.readStringArray(inStream)));
 			
-			if (stringArray1.size() != stringArray2.size()) {
+			int[] buyOrSellArray = Utilities.readIntArray(inStream);
+			
+			int[] amountArray = Utilities.readIntArray(inStream);
+
+			long[] priceArray = Utilities.readLongArray(inStream);
+						
+			if ((nameArray.size() != buyOrSellArray.length) ||
+					(buyOrSellArray.length != amountArray.length) ||
+					(amountArray.length != priceArray.length)) {
 				throw new IOException("Size mismatch");	
 			}
 			
-			for (int i = 0; i < stringArray1.size(); i ++) {
-				String key = stringArray1.get(i);
-				String value = stringArray2.get(i);
-				randoms.put(key, value);				
+			for (int i = 0; i < nameArray.size(); i ++) {
+				String name = nameArray.get(i);
+				int buyOrSell = buyOrSellArray[i];
+				int amount = amountArray[i];
+				long price = priceArray[i];
+				Order addedOrder = new Order(
+						new Integer(buyOrSell),
+						new Integer(amount),
+						new Long(price));
+				
+				orderBook.put(name, addedOrder);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -148,7 +174,7 @@ public class DEXState implements SwirldState {
 
 	@Override
 	public synchronized void copyFrom(SwirldState old) {
-		randoms = new HashMap<String, String>(((DEXState)old).randoms);
+		orderBook = new HashMap<String, Order>(((DEXState)old).orderBook);
 		addressBook = ((DEXState) old).addressBook.copy();
 	}
 
@@ -158,9 +184,24 @@ public class DEXState implements SwirldState {
 		
 		try {
 			String transactionString = new String(transaction, StandardCharsets.UTF_8);
-			String name = transactionString.substring(0, transactionString.indexOf("-")-1 );
-			String value = transactionString.substring(transactionString.indexOf("-") + 2, transactionString.length());		
-			randoms.put(name, value);	
+			String[] transactionArray = transactionString.split(" ");
+			String name = transactionArray[0];
+			String buyOrSellString = transactionArray[1];
+			String amountString = transactionArray[2];
+			String priceString = transactionArray[3];
+			
+			Integer buyOrSell;
+			if (buyOrSellString.equals("yes")) {
+				buyOrSell = 1;
+			}
+			else {
+				buyOrSell = 0;				
+			}
+			
+			Integer amount = new Integer(amountString);
+			Long price = new Long(priceString);
+			Order newOrder = new Order(buyOrSell, amount, price);	
+			orderBook.put(name, newOrder);	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
