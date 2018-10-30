@@ -78,7 +78,7 @@ public class DEXMain implements SwirldMain {
 
 		String[] pars = platform.getParameters();
 		
-		platform.setAbout("Decentralized External Oracle v. 0.1\n"); // set the browser's "about" box
+		platform.setAbout("Decentralized Exchange v. 0.1\n"); // set the browser's "about" box
 		platform.setSleepAfterSync(sleepPeriod);
 
 	}	
@@ -96,16 +96,13 @@ public class DEXMain implements SwirldMain {
 		try {
 			String myName = platform.getState().getAddressBookCopy()
 					.getAddress(selfId).getSelfName();
-	
-			
-			console.out.println("Decentralized External Oracle v.0.1");	
+				
+			console.out.println("Decentralized Exchange v.0.1");	
 			console.out.println("My name is " + myName);
-			
-			// calling external data
-			String externalData = ReadExternalData();
-			
-			console.out.println("External data is " + externalData);
-			String transactionString = myName + " - " + externalData;	
+			String orderString = generateTestOrder(myName);
+		
+			console.out.println("Order is " + orderString + " ");
+			String transactionString = myName + " - " + orderString;	
 			byte[] transaction = transactionString.getBytes(StandardCharsets.UTF_8);
 			
 			platform.createTransaction(transaction);
@@ -139,44 +136,9 @@ public class DEXMain implements SwirldMain {
 			
 			console.out.println("Calculating oracle for the external data"); 
 			
-			// DATA CALCULATION FOR EXTERNAL DATA
-			// SIMPLE ALGORITHM -> GETTING MOST VOTED
-			 Map<String, Integer> voted = new HashMap<String, Integer>();
-			 String[] stringArray = stateString.split(" ");
-			 for (int i = 0; i < stringArray.length; i++) {
-				 String name = "";
-				 String value = "";
-				 if (i % 2 == 0) {
-					 name = stringArray[i];
-				 }
-				 else {
-					 value = stringArray[i];
-					 
-					 if (voted.containsKey(value)){
-						int vote =  voted.get(value);
-						voted.put(value, vote + 1);
-					 }
-					 else {
-						voted.put(value, 1);					 
-					 }
-				 }
-			 }
-			 
-			String maxkey = "";
-			int maxVote = 0;
-			for (Map.Entry<String, Integer> entry : voted.entrySet())
-			{
-				String key = entry.getKey();
-				int vote = entry.getValue();
-				
-				if (maxVote < vote) {
-					maxVote = vote;
-					maxkey = key;
-				}
-			}
+			// ORDER BOOK MATCHING ALGORITHM
 			
-			console.out.println("Max voted result : " + maxkey); 
- 
+			console.out.println("Order book matchin finished"); 
 			
 		} catch(Exception e){
 			LogException(e);
@@ -186,38 +148,23 @@ public class DEXMain implements SwirldMain {
 	@Override
 	public SwirldState newState() {
 		return new DEXState();
-	}
+	}		
 	
-	public String ReadExternalData() {
-		String result = "";
-		
-        // Make a URL to the web page
-        URL url;
-		try {
-			url = new URL("http://stackoverflow.com/questions/6159118/using-java-to-pull-data-from-a-webpage");
-
-	        // Get the input stream through URL Connection
-	        URLConnection con = url.openConnection();
-	        InputStream is =con.getInputStream();
-	
-	        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-	
-	        String line = null;
-	
-	        // simple test result
-	        result = br.readLine();
-	        if (result.length() > 5)
-	        result = result.substring(0, 4);
-	        // read each line and write to System.out
-	        //while ((line = br.readLine()) != null) {
-	        //    System.out.println(line);
-	        //}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public String generateTestOrder(String myName) {
+		String testOrder = "";
+		if (myName.equals("Alice")) {
+			// buy 100 for 100
+			testOrder = " 1 100 100 ";
+		}else if (myName.equals("Bob")) {
+			// sell 50 for 100
+			testOrder = " 0 50 100 ";
+		}else if (myName.equals("Carol")) {
+			// buy 50 for 101
+			testOrder = " 1 50 101 ";			
+		}else if (myName.equals("Dave")) {
+			// sell 100 for 99
+			testOrder = " 0 100 99 ";			
 		}
-        return result;
+		return testOrder;
 	}
-
-	
 }
