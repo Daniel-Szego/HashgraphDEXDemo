@@ -37,15 +37,15 @@ import com.swirlds.platform.Utilities;
 public class DEXState implements SwirldState {
 
 	// SHARED STATE
-	//shared state is a map of identifier -> integers (random number) 
- 	private Map<String, String> randoms = new HashMap<String, String>();
+	//shared state is the order book
+ 	private Map<String, Order> orderBook = new HashMap<String, Order>();
 	
 	/** names and addresses of all members */
 	private AddressBook addressBook;
 
 	/** @return all the state information received so far from the network */
-	public synchronized Map<String, String> getState() {
-		return randoms;
+	public synchronized Map<String, Order> getState() {
+		return orderBook;
 	}
 
 	
@@ -53,11 +53,15 @@ public class DEXState implements SwirldState {
 	/** @return all the strings received so far from the network, concatenated into one */
 	public synchronized String getReceived() {
 		String result = "";
-		for (Map.Entry<String, String> entry : randoms.entrySet())
+		for (Map.Entry<String, Order> entry : orderBook.entrySet())
 		{
-			String key = entry.getKey();
-			String value = entry.getValue();
-			result += key + " " + value.toString() + " ";
+			String name = entry.getKey();
+			Order order = entry.getValue();
+			Boolean buyOrSell = order.buyOrSell;
+			Integer amount = order.amount;
+			Double price = order.price;
+			result += name + " " + buyOrSell.toString() + 
+					" " + amount.toString() + " " + price.toString();
 		}
 		return result;
 	}
@@ -66,13 +70,17 @@ public class DEXState implements SwirldState {
 	/** @return the same as getReceived, so it returns the entire shared state as a single string */
 	public synchronized String toString() {
 		String result = "";
-		for (Map.Entry<String, String> entry : randoms.entrySet())
+		for (Map.Entry<String, Order> entry : orderBook.entrySet())
 		{
-			String key = entry.getKey();
-			String value = entry.getValue();
-			result += key + " " + value.toString() + " ";
+			String name = entry.getKey();
+			Order order = entry.getValue();
+			boolean buyOrSell = order.buyOrSell;
+			int amount = order.amount;
+			double price = order.price;
+			result += name + " " + new Boolean(buyOrSell).toString() + 
+					" " + new Integer(amount).toString() + " " + new Double(price).toString();
 		}
-		return result;	
+		return result;
 	}
 
 	// ///////////////////////////////////////////////////////////////////
@@ -92,8 +100,9 @@ public class DEXState implements SwirldState {
 	@Override
 	public synchronized void copyTo(FCDataOutputStream outStream) {
 		try {
-			List<String> stringArray1 = new ArrayList<String>();
-			List<String> stringArray2 = new ArrayList<String>();
+			List<String> nameArray = new ArrayList<String>();		
+			List<Boolean> buyOrSellArray = new ArrayList<Boolean>();
+			
 			
 			for (Map.Entry<String, String> entry : randoms.entrySet())
 			{
