@@ -102,7 +102,7 @@ public class DEXMain implements SwirldMain {
 			String orderString = generateTestOrder(myName);
 		
 			console.out.println("Order is " + orderString + " ");
-			String transactionString = myName + " - " + orderString;	
+			String transactionString = myName + " " + orderString + " ";	
 			byte[] transaction = transactionString.getBytes(StandardCharsets.UTF_8);
 			
 			platform.createTransaction(transaction);
@@ -154,16 +154,16 @@ public class DEXMain implements SwirldMain {
 		String testOrder = "";
 		if (myName.equals("Alice")) {
 			// buy 100 for 100
-			testOrder = " 1 100 100 ";
+			testOrder = "1 100 100 ";
 		}else if (myName.equals("Bob")) {
 			// sell 50 for 100
-			testOrder = " 0 50 100 ";
+			testOrder = "0 50 100 ";
 		}else if (myName.equals("Carol")) {
 			// buy 50 for 101
-			testOrder = " 1 50 101 ";			
+			testOrder = "1 50 101 ";			
 		}else if (myName.equals("Dave")) {
 			// sell 100 for 99
-			testOrder = " 0 100 99 ";			
+			testOrder = "0 100 99 ";			
 		}
 		return testOrder;
 	}

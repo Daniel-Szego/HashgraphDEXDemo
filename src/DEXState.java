@@ -63,7 +63,7 @@ public class DEXState implements SwirldState {
 			result += name + " " + buyOrSell.toString() + 
 					" " + amount.toString() + " " + price.toString();
 		}
-		return result;
+		return result + " ";
 	}
 	
 	
@@ -80,7 +80,7 @@ public class DEXState implements SwirldState {
 			result += name + " " + buyOrSell.toString() + 
 					" " + amount.toString() + " " + price.toString();
 		}
-		return result;
+		return result + " ";
 	}
 
 	// ///////////////////////////////////////////////////////////////////
