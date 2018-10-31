@@ -191,7 +191,7 @@ public class DEXState implements SwirldState {
 			String priceString = transactionArray[3];
 			
 			Integer buyOrSell;
-			if (buyOrSellString.equals("yes")) {
+			if (buyOrSellString.equals("1")) {
 				buyOrSell = 1;
 			}
 			else {

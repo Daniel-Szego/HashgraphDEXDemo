@@ -134,7 +134,7 @@ public class DEXMain implements SwirldMain {
 				}
 			}
 			
-			console.out.println("Calculating oracle for the external data"); 
+			console.out.println("Order book matching started"); 
 			
 			// ORDER BOOK MATCHING ALGORITHM
 			// recreating order book from state string
@@ -160,6 +160,8 @@ public class DEXMain implements SwirldMain {
 				Order newOrder = new Order(buyOrSell, amount, price);	
 				orderBook.put(name, newOrder);		
 			}					
+			
+			SimpleOrderMatching(orderBook);
 			
 			console.out.println("Order book matchin finished"); 
 			
@@ -189,5 +191,38 @@ public class DEXMain implements SwirldMain {
 			testOrder = "0 100 99 ";			
 		}
 		return testOrder;
+	}
+	
+	public void SimpleOrderMatching(Map<String, Order> orderBook) {
+		
+		for (Map.Entry<String, Order> entry : orderBook.entrySet())
+		{
+			String actualName = entry.getKey();
+			Order actualOrder = entry.getValue();
+			Integer actualBuyOrSell = actualOrder.buyOrSell;
+			Integer actualAmount = actualOrder.amount;
+			Long actualPrice = actualOrder.price;
+			
+			if (actualBuyOrSell == 1) {
+				for (Map.Entry<String, Order> entryIn : orderBook.entrySet())
+				{
+					String matchingName = entryIn.getKey();
+					Order matchinOrder = entryIn.getValue();
+					Integer matchingBuyOrSell = matchinOrder.buyOrSell;
+					Integer matchingAmount = matchinOrder.amount;
+					Long matchingPrice = matchinOrder.price;
+					
+					if (matchingBuyOrSell == 0) {
+						if (actualPrice >= matchingPrice) {
+							
+							console.out.println("Matching found"); 
+							console.out.println("BUY: "+ actualName + " " + actualBuyOrSell + " " + actualAmount + " " + actualPrice); 
+							console.out.println("SELL: "+ matchingName + " " +  matchingBuyOrSell + " " +  matchingAmount + " " +  matchingPrice); 
+							
+						}					
+					}
+				}
+			}
+		}
 	}
 }
