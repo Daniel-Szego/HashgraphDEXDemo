@@ -137,6 +137,29 @@ public class DEXMain implements SwirldMain {
 			console.out.println("Calculating oracle for the external data"); 
 			
 			// ORDER BOOK MATCHING ALGORITHM
+			// recreating order book from state string
+			String[] orderStringArray = stateString.split(" ");
+			Map<String, Order> orderBook = new HashMap<String, Order>();
+			
+			for (int i = 0; i < orderStringArray.length; i = i + 4) {	
+				String name = orderStringArray[i];				
+				String buyOrSellString = orderStringArray[i + 1];
+				String amountString = orderStringArray[i + 2];
+				String priceString = orderStringArray[i + 3];
+				
+				Integer buyOrSell;
+				if (buyOrSellString.equals("1")) {
+					buyOrSell = 1;
+				}
+				else {
+					buyOrSell = 0;				
+				}
+				
+				Integer amount = new Integer(amountString);
+				Long price = new Long(priceString);
+				Order newOrder = new Order(buyOrSell, amount, price);	
+				orderBook.put(name, newOrder);		
+			}					
 			
 			console.out.println("Order book matchin finished"); 
 			
