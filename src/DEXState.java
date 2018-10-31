@@ -61,9 +61,9 @@ public class DEXState implements SwirldState {
 			Integer amount = order.amount;
 			Long price = order.price;
 			result += name + " " + buyOrSell.toString() + 
-					" " + amount.toString() + " " + price.toString();
+					" " + amount.toString() + " " + price.toString() + " ";
 		}
-		return result + " ";
+		return result;
 	}
 	
 	
@@ -78,7 +78,7 @@ public class DEXState implements SwirldState {
 			Integer amount = order.amount;
 			Long price = order.price;
 			result += name + " " + buyOrSell.toString() + 
-					" " + amount.toString() + " " + price.toString();
+					" " + amount.toString() + " " + price.toString() + " ";
 		}
 		return result + " ";
 	}
