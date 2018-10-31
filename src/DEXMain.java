@@ -203,7 +203,7 @@ public class DEXMain implements SwirldMain {
 			Integer actualAmount = actualOrder.amount;
 			Long actualPrice = actualOrder.price;
 			
-			if (actualBuyOrSell == 1) {
+			if ((actualBuyOrSell == 1) && (actualOrder.matched == false)) {
 				for (Map.Entry<String, Order> entryIn : orderBook.entrySet())
 				{
 					String matchingName = entryIn.getKey();
@@ -212,13 +212,14 @@ public class DEXMain implements SwirldMain {
 					Integer matchingAmount = matchinOrder.amount;
 					Long matchingPrice = matchinOrder.price;
 					
-					if (matchingBuyOrSell == 0) {
+					if ((matchingBuyOrSell == 0) && (matchinOrder.matched == false)) {
 						if (actualPrice >= matchingPrice) {
 							
-							console.out.println("Matching found"); 
+							console.out.println("Matching doing"); 
 							console.out.println("BUY: "+ actualName + " " + actualBuyOrSell + " " + actualAmount + " " + actualPrice); 
 							console.out.println("SELL: "+ matchingName + " " +  matchingBuyOrSell + " " +  matchingAmount + " " +  matchingPrice); 
-							
+							actualOrder.matched = true;
+							matchinOrder.matched = true;	
 						}					
 					}
 				}

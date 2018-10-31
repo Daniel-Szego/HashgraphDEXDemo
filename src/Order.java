@@ -5,11 +5,13 @@ public class Order {
 	public Integer buyOrSell;	
 	public Integer amount;
 	public Long price;
+	public boolean matched;
 	
 	public Order(Integer _buyOrSell, Integer _amount, Long _price) {
 		buyOrSell = _buyOrSell;
 		amount = _amount;
 		price = _price;
+		matched = false;
 	}
 	
 }
