@@ -38,13 +38,13 @@ public class DEXState implements SwirldState {
 
 	// SHARED STATE
 	//shared state is the order book
- 	private Map<String, Order> orderBook = new HashMap<String, Order>();
+ 	private List<Order> orderBook = new ArrayList<Order>();
 	
 	/** names and addresses of all members */
 	private AddressBook addressBook;
 
 	/** @return all the state information received so far from the network */
-	public synchronized Map<String, Order> getState() {
+	public synchronized List<Order>  getState() {
 		return orderBook;
 	}
 
@@ -53,13 +53,12 @@ public class DEXState implements SwirldState {
 	/** @return all the strings received so far from the network, concatenated into one */
 	public synchronized String getReceived() {
 		String result = "";
-		for (Map.Entry<String, Order> entry : orderBook.entrySet())
+		for (int i = 0; i < orderBook.size(); i ++)
 		{
-			String name = entry.getKey();
-			Order order = entry.getValue();
-			Integer buyOrSell = order.buyOrSell;
-			Integer amount = order.amount;
-			Long price = order.price;
+			String name = orderBook.get(i).name;
+			Integer buyOrSell = orderBook.get(i).buyOrSell;
+			Integer amount = orderBook.get(i).amount;
+			Long price = orderBook.get(i).price;
 			result += name + " " + buyOrSell.toString() + 
 					" " + amount.toString() + " " + price.toString() + " ";
 		}
@@ -70,13 +69,12 @@ public class DEXState implements SwirldState {
 	/** @return the same as getReceived, so it returns the entire shared state as a single string */
 	public synchronized String toString() {
 		String result = "";
-		for (Map.Entry<String, Order> entry : orderBook.entrySet())
+		for (int i = 0; i < orderBook.size(); i ++)
 		{
-			String name = entry.getKey();
-			Order order = entry.getValue();
-			Integer buyOrSell = order.buyOrSell;
-			Integer amount = order.amount;
-			Long price = order.price;
+			String name = orderBook.get(i).name;
+			Integer buyOrSell = orderBook.get(i).buyOrSell;
+			Integer amount = orderBook.get(i).amount;
+			Long price = orderBook.get(i).price;
 			result += name + " " + buyOrSell.toString() + 
 					" " + amount.toString() + " " + price.toString() + " ";
 		}
@@ -105,13 +103,12 @@ public class DEXState implements SwirldState {
 			List<Integer> amountArray = new ArrayList<Integer>();
 			List<Long> priceArray = new ArrayList<Long>();
 			
-			for (Map.Entry<String, Order> entry : orderBook.entrySet())
+			for (int i = 0; i < orderBook.size(); i ++)
 			{
-				String name = entry.getKey();
-				Order order = entry.getValue();
-				Integer buyOrSell = order.buyOrSell;
-				Integer amount = order.amount;
-				Long price = order.price;
+				String name = orderBook.get(i).name;
+				Integer buyOrSell = orderBook.get(i).buyOrSell;
+				Integer amount = orderBook.get(i).amount;
+				Long price = orderBook.get(i).price;
 				nameArray.add(name);
 				buyOrSellArray.add(buyOrSell);
 				amountArray.add(amount);
@@ -161,11 +158,12 @@ public class DEXState implements SwirldState {
 				int amount = amountArray[i];
 				long price = priceArray[i];
 				Order addedOrder = new Order(
+						name,
 						new Integer(buyOrSell),
 						new Integer(amount),
 						new Long(price));
 				
-				orderBook.put(name, addedOrder);
+				orderBook.add(addedOrder);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -174,7 +172,7 @@ public class DEXState implements SwirldState {
 
 	@Override
 	public synchronized void copyFrom(SwirldState old) {
-		orderBook = new HashMap<String, Order>(((DEXState)old).orderBook);
+		orderBook = new ArrayList<Order>(((DEXState)old).orderBook);
 		addressBook = ((DEXState) old).addressBook.copy();
 	}
 
@@ -200,8 +198,8 @@ public class DEXState implements SwirldState {
 			
 			Integer amount = new Integer(amountString);
 			Long price = new Long(priceString);
-			Order newOrder = new Order(buyOrSell, amount, price);	
-			orderBook.put(name, newOrder);	
+			Order newOrder = new Order(name, buyOrSell, amount, price);	
+			orderBook.add(newOrder);	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

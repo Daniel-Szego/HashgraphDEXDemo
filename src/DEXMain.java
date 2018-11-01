@@ -18,7 +18,9 @@ import java.awt.Label;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -139,7 +141,7 @@ public class DEXMain implements SwirldMain {
 			// ORDER BOOK MATCHING ALGORITHM
 			// recreating order book from state string
 			String[] orderStringArray = stateString.split(" ");
-			Map<String, Order> orderBook = new HashMap<String, Order>();
+			List<Order> orderBook = new ArrayList<Order>();
 			
 			for (int i = 0; i < orderStringArray.length; i = i + 4) {	
 				String name = orderStringArray[i];				
@@ -157,8 +159,8 @@ public class DEXMain implements SwirldMain {
 				
 				Integer amount = new Integer(amountString);
 				Long price = new Long(priceString);
-				Order newOrder = new Order(buyOrSell, amount, price);	
-				orderBook.put(name, newOrder);		
+				Order newOrder = new Order(name, buyOrSell, amount, price);	
+				orderBook.add(newOrder);		
 			}					
 			
 			MultiOrderMatching(orderBook);
@@ -193,33 +195,33 @@ public class DEXMain implements SwirldMain {
 		return testOrder;
 	}
 	
-	public void SimpleOrderMatching(Map<String, Order> orderBook) {
+	public void SimpleOrderMatching(List<Order> orderBook) {
 		
-		for (Map.Entry<String, Order> entry : orderBook.entrySet())
+		for (int i = 0; i < orderBook.size(); i ++)
 		{
-			String actualName = entry.getKey();
-			Order actualOrder = entry.getValue();
-			Integer actualBuyOrSell = actualOrder.buyOrSell;
-			Integer actualAmount = actualOrder.amount;
-			Long actualPrice = actualOrder.price;
+			String actualName = orderBook.get(i).name;
+			Integer actualBuyOrSell = orderBook.get(i).buyOrSell;
+			Integer actualAmount = orderBook.get(i).amount;
+			Long actualPrice = orderBook.get(i).price;
+			boolean actualMatched = orderBook.get(i).matched;
 			
-			if ((actualBuyOrSell == 1) && (actualOrder.matched == false)) {
-				for (Map.Entry<String, Order> entryIn : orderBook.entrySet())
+			if ((actualBuyOrSell == 1) && (actualMatched == false)) {
+				for (int j = 0; j < orderBook.size(); j ++)
 				{
-					String matchingName = entryIn.getKey();
-					Order matchinOrder = entryIn.getValue();
-					Integer matchingBuyOrSell = matchinOrder.buyOrSell;
-					Integer matchingAmount = matchinOrder.amount;
-					Long matchingPrice = matchinOrder.price;
+					String matchingName = orderBook.get(j).name;
+					Integer matchingBuyOrSell = orderBook.get(j).buyOrSell;
+					Integer matchingAmount = orderBook.get(j).amount;
+					Long matchingPrice = orderBook.get(j).price;
+					boolean matchingMatched = orderBook.get(j).matched;
 					
-					if ((matchingBuyOrSell == 0) && (matchinOrder.matched == false)) {
+					if ((matchingBuyOrSell == 0) && (matchingMatched == false)) {
 						if (actualPrice >= matchingPrice) {
 							
 							console.out.println("Matching doing"); 
 							console.out.println("BUY: "+ actualName + " " + actualBuyOrSell + " " + actualAmount + " " + actualPrice); 
 							console.out.println("SELL: "+ matchingName + " " +  matchingBuyOrSell + " " +  matchingAmount + " " +  matchingPrice); 
-							actualOrder.matched = true;
-							matchinOrder.matched = true;	
+							orderBook.get(i).matched = true;
+							 orderBook.get(j).matched = true;	
 						}					
 					}
 				}
@@ -228,26 +230,26 @@ public class DEXMain implements SwirldMain {
 	}
 
 
-	public void MultiOrderMatching(Map<String, Order> orderBook) {
+	public void MultiOrderMatching(List<Order> orderBook) {
 			
 		boolean matchinghappened = true;
 		
 		while (matchinghappened) { 
 		
 			matchinghappened = false;
-			for (Map.Entry<String, Order> entry : orderBook.entrySet())
+			for (int i = 0; i < orderBook.size(); i ++)
 			{
-				String actualName = entry.getKey();
-				Order actualOrder = entry.getValue();
+				String actualName = orderBook.get(i).name;
+				Order actualOrder = orderBook.get(i);
 				Integer actualBuyOrSell = actualOrder.buyOrSell;
 				Integer actualAmount = actualOrder.amount;
 				Long actualPrice = actualOrder.price;
 				
 				if ((actualBuyOrSell == 1) && (actualOrder.matched == false)) {
-					for (Map.Entry<String, Order> entryIn : orderBook.entrySet())
+					for (int j = 0; j < orderBook.size(); j ++)
 					{
-						String matchingName = entryIn.getKey();
-						Order matchinOrder = entryIn.getValue();
+						String matchingName = orderBook.get(j).name;
+						Order matchinOrder = orderBook.get(j);
 						Integer matchingBuyOrSell = matchinOrder.buyOrSell;
 						Integer matchingAmount = matchinOrder.amount;
 						Long matchingPrice = matchinOrder.price;
