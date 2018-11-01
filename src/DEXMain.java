@@ -161,7 +161,7 @@ public class DEXMain implements SwirldMain {
 				orderBook.put(name, newOrder);		
 			}					
 			
-			SimpleOrderMatching(orderBook);
+			MultiOrderMatching(orderBook);
 			
 			console.out.println("Order book matchin finished"); 
 			
@@ -226,4 +226,65 @@ public class DEXMain implements SwirldMain {
 			}
 		}
 	}
+
+
+	public void MultiOrderMatching(Map<String, Order> orderBook) {
+			
+		boolean matchinghappened = true;
+		
+		while (matchinghappened) { 
+		
+			matchinghappened = false;
+			for (Map.Entry<String, Order> entry : orderBook.entrySet())
+			{
+				String actualName = entry.getKey();
+				Order actualOrder = entry.getValue();
+				Integer actualBuyOrSell = actualOrder.buyOrSell;
+				Integer actualAmount = actualOrder.amount;
+				Long actualPrice = actualOrder.price;
+				
+				if ((actualBuyOrSell == 1) && (actualOrder.matched == false)) {
+					for (Map.Entry<String, Order> entryIn : orderBook.entrySet())
+					{
+						String matchingName = entryIn.getKey();
+						Order matchinOrder = entryIn.getValue();
+						Integer matchingBuyOrSell = matchinOrder.buyOrSell;
+						Integer matchingAmount = matchinOrder.amount;
+						Long matchingPrice = matchinOrder.price;
+						
+						if ((matchingBuyOrSell == 0) && (matchinOrder.matched == false)) {
+							if (actualPrice >= matchingPrice) {
+								matchinghappened = true;
+								console.out.println("Matching doing"); 
+								console.out.println("BUY: "+ actualName + " " + actualBuyOrSell + " " + actualAmount + " " + actualPrice); 
+								console.out.println("SELL: "+ matchingName + " " +  matchingBuyOrSell + " " +  matchingAmount + " " +  matchingPrice); 
+								console.out.println("Matching amount : " + (Math.max(actualAmount, matchingAmount) - Math.abs(actualAmount - matchingAmount)));
+								
+								if (actualAmount > matchingAmount) {
+									Integer remain = actualAmount - matchingAmount;
+									// adding remain as a new non closed order to the order book								
+									actualOrder.amount = remain;
+									matchinOrder.matched = true;	
+								}
+								else if (actualAmount < matchingAmount) {
+									Integer remain = matchingAmount - actualAmount;
+									// adding remain as a new non closed order to the order book																
+									matchinOrder.amount = remain;
+									actualOrder.matched = true;								
+								}
+								else if (actualAmount == matchingAmount) {
+									actualOrder.matched = true;
+									matchinOrder.matched = true;									
+								}
+							break;
+							}					
+						}
+					}
+				}
+			}
+		}
+		
+	}
+
+
 }
